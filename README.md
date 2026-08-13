@@ -4,7 +4,15 @@
      ───────────────────────────────────────────────────────────── -->
 
 <p align="center">
-  <p align="center"><img src="assets/logo.svg" width="520" alt="Vectrix logo"></p>
+  <p align="center"><img src="assets/logo.svg" width="520" alt="Vectrix logo">
+
+<p align="center">
+  <a href="https://opanai404.github.io/vectrix/"><img src="https://img.shields.io/badge/▶_try_the_live_demo-A78BFA?style=for-the-badge&logoColor=white" alt="Try the live demo"></a>
+</p>
+
+<p align="center">
+  <a href="https://opanai404.github.io/vectrix/"><img src="assets/og.png" width="720" alt="vectrix demo preview"></a>
+</p></p>
   <strong><em>SIMD-accelerated embedded vector search engine in Rust</em></strong>
 </p>
 
