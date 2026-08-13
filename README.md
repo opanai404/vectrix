@@ -12,15 +12,12 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/opanai404/vectrix/actions/workflows/ci.yml">
-    <img src="https://img.shields.io/github/actions/workflow/status/opanai404/vectrix/ci.yml?branch=main&style=flat&logoColor=white" alt="CI build">
   </a>
   <img src="https://img.shields.io/github/license/opanai404/vectrix?color=A78BFA&style=flat&logoColor=white" alt="license MIT">
   <img src="https://img.shields.io/badge/version-0.1.0-A78BFA?style=flat&logoColor=white" alt="version">
   <img src="https://img.shields.io/badge/Rust-1.90%2B-A78BFA?style=flat&logo=rust&logoColor=white" alt="Rust">
   <img src="https://img.shields.io/badge/SIMD-AVX2%20%C2%B7%20NEON-A78BFA?style=flat&logoColor=white" alt="SIMD AVX2 · NEON">
   <img src="https://img.shields.io/badge/WASM-wasm32-unknown--unknown-A78BFA?style=flat&logoColor=white" alt="WASM">
-  <img src="https://img.shields.io/github/stars/opanai404/vectrix?style=flat&logoColor=white" alt="stars">
 </p>
 
 ---
