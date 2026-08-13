@@ -4,10 +4,7 @@
      ───────────────────────────────────────────────────────────── -->
 
 <p align="center">
-  <pre align="center" style="line-height:1.1; color:#A78BFA">
-  █▀▀█  █▀▀  ▀▀█  ▀█▀  █▀▀  ▀█▀  █▄█
-  █  █  █▀▀   █    █   █▀   ▀█▀  ▀█▀
-  ▀  ▀  █▄▄  ▀▀   ▀▀▀  █▄▄   █   ▀ ▀</pre>
+  <p align="center"><img src="assets/logo.svg" width="520" alt="Vectrix logo"></p>
   <strong><em>SIMD-accelerated embedded vector search engine in Rust</em></strong>
 </p>
 
