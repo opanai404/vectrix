@@ -1,0 +1,51 @@
+# ─────────────────────────────────────────────────────────────
+# VECTRIX · cargo workspace root
+# SPDX-License-Identifier: MIT
+# ─────────────────────────────────────────────────────────────
+
+[workspace]
+resolver = "3"
+members = [
+    "crates/core",
+    "crates/quant",
+    "crates/index",
+    "crates/storage",
+    "crates/wasm",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.90"
+license = "MIT"
+authors = ["hrniu"]
+repository = "https://github.com/hrniu/vectrix"
+homepage = "https://github.com/hrniu/vectrix"
+readme = "README.md"
+keywords = ["vector-search", "ann", "hnsw", "ivf", "simd"]
+categories = ["algorithms", "data-structures", "database"]
+
+[workspace.dependencies]
+vectrix-core = { path = "crates/core", version = "0.1.0" }
+vectrix-quant = { path = "crates/quant", version = "0.1.0" }
+vectrix-index = { path = "crates/index", version = "0.1.0" }
+vectrix-storage = { path = "crates/storage", version = "0.1.0" }
+
+libc = "0.2.177"
+wasm-bindgen = "0.2.104"
+js-sys = "0.3.82"
+
+criterion = "0.5.1"
+proptest = "1.7.0"
+
+# cargo-deny policy (see deny.toml)
+[workspace.metadata.deny]
+targets = ["x86_64-unknown-linux-gnu", "aarch64-apple-darwin", "wasm32-unknown-unknown"]
+
+[profile.release]
+lto = "thin"
+codegen-units = 1
+panic = "abort"
+
+[profile.bench]
+lto = true

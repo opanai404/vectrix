@@ -1,0 +1,23 @@
+# ─────────────────────────────────────────────────────────────
+# VECTRIX · index crate manifest
+# SPDX-License-Identifier: MIT
+# ─────────────────────────────────────────────────────────────
+
+[package]
+name = "vectrix-index"
+description = "HNSW and IVF-PQ approximate nearest-neighbor indexes for Vectrix."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+keywords.workspace = true
+categories.workspace = true
+
+[dependencies]
+vectrix-core = { workspace = true }
+vectrix-quant = { workspace = true }
+
+[dev-dependencies]
+proptest = { workspace = true }

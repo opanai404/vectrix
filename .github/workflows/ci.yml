@@ -1,0 +1,83 @@
+# ─────────────────────────────────────────────────────────────
+# VECTRIX · CI pipeline
+# SPDX-License-Identifier: MIT
+# ─────────────────────────────────────────────────────────────
+#
+# Matrix: fmt + clippy on Linux, full test suite on Linux/macOS/Windows,
+# and a wasm32-unknown-unknown check for the browser target.
+
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  CARGO_TERM_COLOR: always
+  RUSTFLAGS: "-D warnings"
+
+jobs:
+  lint:
+    name: lint · fmt + clippy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - name: Cache cargo registry
+        uses: Swatinem/rust-cache@v2
+      - name: Check formatting
+        run: cargo fmt --all -- --check
+      - name: Clippy (warnings denied)
+        run: cargo clippy --workspace --all-targets --all-features -- -D warnings
+
+  test:
+    name: test · ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            exclude_flag: ""
+          - os: macos-latest
+            exclude_flag: ""
+          # vectrix-storage is unix-only (POSIX mmap via libc); the rest of
+          # the workspace still gets a full test pass on Windows.
+          - os: windows-latest
+            exclude_flag: "--exclude vectrix-storage"
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+      - name: Cache cargo registry
+        uses: Swatinem/rust-cache@v2
+      - name: Run full test suite
+        run: cargo test --workspace --all-features ${{ matrix.exclude_flag }}
+      - name: Verify examples build
+        run: cargo build --workspace --all-targets --all-features ${{ matrix.exclude_flag }}
+
+  wasm:
+    name: wasm · wasm32-unknown-unknown
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+      - name: Cache cargo registry
+        uses: Swatinem/rust-cache@v2
+      - name: Typecheck the browser target
+        run: cargo check -p vectrix-wasm --target wasm32-unknown-unknown
+
+  audit:
+    name: audit · cargo-deny
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: EmbarkStudios/cargo-deny-action@v2

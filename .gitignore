@@ -1,0 +1,37 @@
+# ─────────────────────────────────────────────────────────────
+# VECTRIX · ignore rules
+# SPDX-License-Identifier: MIT
+# ─────────────────────────────────────────────────────────────
+
+# Rust build output
+/target/
+**/target/
+Cargo.lock.orig
+
+# wasm-bindgen generated JS glue
+wasm/pkg/
+*.wasm
+
+# Editor / OS noise
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+.idea/
+.vscode/
+*.iml
+
+# Local scratch, profiles, env
+.env
+.env.*
+local/
+scratch/
+
+# Logs and coverage
+*.log
+coverage/
+lcov.info
+
+# Editor backups
+**/*.rs.bk

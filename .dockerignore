@@ -1,0 +1,14 @@
+# ─────────────────────────────────────────────────────────────
+# VECTRIX · docker build context exclusions
+# SPDX-License-Identifier: MIT
+# ─────────────────────────────────────────────────────────────
+
+target/
+**/target/
+.git/
+.gitignore
+.github/
+docs/
+wasm/pkg/
+.DS_Store
+*.log

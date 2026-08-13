@@ -1,0 +1,25 @@
+# ─────────────────────────────────────────────────────────────
+# VECTRIX · wasm crate manifest
+# SPDX-License-Identifier: MIT
+# ─────────────────────────────────────────────────────────────
+
+[package]
+name = "vectrix-wasm"
+description = "WASM bindings for the Vectrix HNSW index."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+keywords.workspace = true
+categories.workspace = true
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+vectrix-core = { workspace = true }
+vectrix-index = { workspace = true }
+wasm-bindgen = { workspace = true }
+js-sys = { workspace = true }
