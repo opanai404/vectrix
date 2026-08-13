@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Vectrix — interactive vector search</title>
+<style>
+  :root { color-scheme: dark; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 100%; height: 100%; overflow: hidden; background: #05070d; }
+  body { font-family: "SF Mono", ui-monospace, Menlo, Consolas, monospace; }
+  canvas { display: block; width: 100vw; height: 100vh; cursor: crosshair; }
+  #hud { position: fixed; inset: 0; pointer-events: none; display: flex; flex-direction: column; justify-content: space-between; padding: 20px 24px; }
+  .row { display: flex; justify-content: space-between; align-items: flex-start; }
+  .brand h1 { font-size: 15px; font-weight: 700; letter-spacing: 0.35em; color: #a78bfa; text-transform: uppercase; text-shadow: 0 0 18px rgba(167,139,250,0.5); }
+  .brand .sub { font-size: 11px; color: #7d8698; letter-spacing: 0.08em; margin-top: 5px; }
+  .panel {
+    pointer-events: auto; background: rgba(16,24,40,0.72); border: 1px solid rgba(167,139,250,0.25);
+    border-radius: 14px; padding: 14px 16px; backdrop-filter: blur(10px); min-width: 240px;
+  }
+  .panel .lbl { font-size: 10px; letter-spacing: 0.2em; color: #7d8698; text-transform: uppercase; margin-bottom: 8px; }
+  .panel .stat { font-size: 13px; color: #c8cfdc; line-height: 1.7; }
+  .panel .stat b { color: #a78bfa; font-weight: 600; font-size: 15px; }
+  .seg { display: flex; gap: 6px; margin-bottom: 10px; }
+  .seg button {
+    flex: 1; font: inherit; font-size: 11px; letter-spacing: 0.04em; color: #9aa3b5;
+    background: transparent; border: 1px solid rgba(167,139,250,0.25); border-radius: 9px; padding: 6px 0; cursor: pointer;
+  }
+  .seg button.on { color: #05070d; background: #a78bfa; border-color: #a78bfa; font-weight: 700; }
+  input[type=range] { width: 100%; accent-color: #a78bfa; }
+  .hint { font-size: 11px; color: #7d8698; letter-spacing: 0.04em; }
+  .hint span { color: #c8cfdc; }
+  .badge { position: fixed; right: 24px; bottom: 20px; font-size: 11px; color: #a78bfa; text-decoration: none; border: 1px solid rgba(167,139,250,0.35); border-radius: 20px; padding: 6px 14px; letter-spacing: 0.05em; }
+</style>
+</head>
+<body>
+<canvas id="cv"></canvas>
+<div id="hud">
+  <div class="row">
+    <div class="brand"><h1>Vectrix</h1><div class="sub">interactive HNSW graph search · 2D embedding · drag to query</div></div>
+    <div class="panel">
+      <div class="lbl">search stats</div>
+      <div class="stat">corpus <b id="n">0</b> vectors</div>
+      <div class="stat">evaluations <b id="evals">0</b></div>
+      <div class="stat">recall@k <b id="recall">100%</b></div>
+    </div>
+  </div>
+  <div class="row" style="align-items:flex-end">
+    <div class="panel">
+      <div class="lbl">metric</div>
+      <div class="seg">
+        <button id="mL2" class="on">L2</button>
+        <button id="mCos">cosine</button>
+      </div>
+      <div class="lbl" style="margin-top:8px">k = <span id="kval" style="color:#a78bfa">10</span></div>
+      <input id="k" type="range" min="1" max="40" value="10" />
+      <div class="hint" style="margin-top:10px"><span>drag</span> query · <span>click</span> graph node</div>
+    </div>
+  </div>
+</div>
+<a class="badge" href="https://github.com/opanai404/vectrix">view source →</a>
+
+<script>
+const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
+let W, H, DPR; const resize = () => { DPR = Math.min(devicePixelRatio, 2); W = cv.width = innerWidth * DPR; H = cv.height = innerHeight * DPR; cv.style.width = innerWidth+'px'; cv.style.height = innerHeight+'px'; };
+resize(); addEventListener('resize', resize);
+
+// ---------- corpus (clustered 2D "vectors") ----------
+const N = 420, pts = [];
+const clusters = Array.from({length: 9}, (_,i) => {
+  const a = i / 9 * Math.PI * 2;
+  return { x: 0.5 + 0.33*Math.cos(a), y: 0.5 + 0.33*Math.sin(a) };
+});
+for (let i=0;i<N;i++){
+  const cl = clusters[i % clusters.length];
+  pts.push({ x: cl.x + (Math.random()-0.5)*0.16, y: cl.y + (Math.random()-0.5)*0.16, id:i });
+}
+
+// ---------- distance ----------
+let metric = 'L2';
+function dist(a,b){ if(metric==='cosine'){ const d = a.x*b.x + a.y*b.y; return 1 - d; } const dx=a.x-b.x, dy=a.y-b.y; return Math.hypot(dx,dy); }
+
+// ---------- HNSW-like graph (each node → 2 nearest + 1 random long-link) ----------
+const graph = new Map();
+pts.forEach(p => {
+  const d = pts.map((q,i)=>({q,i,d:dist(p,q)})).filter(o=>o.q!==p).sort((a,b)=>a.d-b.d);
+  const nb = d.slice(0,2).map(o=>o.i);
+  nb.push(Math.floor(Math.random()*N)); // long-range
+  graph.set(p.id, [...new Set(nb)]);
+});
+
+// ---------- query + search ----------
+let query = { x: 0.5, y: 0.5 };
+let entry = 0;
+let visited = [], result = [], trail = [];
+
+function greedySearch(q){
+  let cur = entry, best = dist(q, pts[cur]); const seen = new Set([cur]); trail = [cur];
+  let moved = true;
+  while (moved){
+    moved = false;
+    for (const nb of graph.get(cur)){
+      if (seen.has(nb)) continue; seen.add(nb);
+      const d = dist(q, pts[nb]);
+      if (d < best){ best = d; cur = nb; moved = true; trail.push(nb); break; }
+    }
+  }
+  visited = [...seen];
+  const ranked = visited.map(i=>({i,d:dist(q,pts[i])})).sort((a,b)=>a.d-b.d);
+  result = ranked.slice(0, +k.value);
+  document.getElementById('evals').textContent = seen.size;
+  // recall vs brute force over whole corpus
+  const truth = pts.map((p,i)=>({i,d:dist(q,p)})).sort((a,b)=>a.d-b.d).slice(0,+k.value).map(o=>o.i);
+  const hit = result.filter(o=>truth.includes(o.i)).length;
+  document.getElementById('recall').textContent = Math.round(hit/truth.length*100)+'%';
+}
+
+// ---------- input ----------
+let dragging = false;
+function toScene(e){ return { x: e.clientX / innerWidth, y: e.clientY / innerHeight }; }
+cv.addEventListener('mousedown', e => { dragging = true; const s = toScene(e); const near = pts.reduce((b,p)=>{ const d=Math.hypot(p.x-s.x,p.y-s.y); return d<Math.hypot(b.x-s.x,b.y-s.y)?p:b; }, pts[0]); const dn = Math.hypot(near.x-s.x, near.y-s.y); entry = dn < 0.04 ? near.id : Math.floor(Math.random()*N); query = s; greedySearch(query); });
+addEventListener('mousemove', e => { if(!dragging) return; query = toScene(e); greedySearch(query); });
+addEventListener('mouseup', ()=>dragging=false);
+document.getElementById('mL2').onclick = () => { metric='L2'; mL2.classList.add('on'); mCos.classList.remove('on'); greedySearch(query); };
+document.getElementById('mCos').onclick = () => { metric='cosine'; mCos.classList.add('on'); mL2.classList.remove('on'); greedySearch(query); };
+k.oninput = () => { document.getElementById('kval').textContent = k.value; greedySearch(query); };
+document.getElementById('n').textContent = N;
+greedySearch(query);
+
+// ---------- render ----------
+function render(){
+  ctx.clearRect(0,0,W,H); ctx.setTransform(DPR,0,0,DPR,0,0);
+  const w = innerWidth, h = innerHeight;
+  const X = p => p.x * w, Y = p => p.y * h;
+
+  // graph edges (faint)
+  ctx.strokeStyle = 'rgba(167,139,250,0.08)'; ctx.lineWidth = 1;
+  for (const [i, nbs] of graph){ for (const j of nbs){ ctx.beginPath(); ctx.moveTo(X(pts[i]),Y(pts[i])); ctx.lineTo(X(pts[j]),Y(pts[j])); ctx.stroke(); } }
+
+  // corpus
+  for (const p of pts){ ctx.beginPath(); ctx.arc(X(p),Y(p),2,0,7); ctx.fillStyle = 'rgba(167,139,250,0.28)'; ctx.fill(); }
+
+  // visited (search frontier)
+  for (const i of visited){ ctx.beginPath(); ctx.arc(X(pts[i]),Y(pts[i]),4,0,7); ctx.fillStyle = 'rgba(34,211,238,0.35)'; ctx.fill(); }
+
+  // greedy trail
+  ctx.strokeStyle = '#22d3ee'; ctx.lineWidth = 2;
+  for (let t=0;t<trail.length-1;t++){ ctx.beginPath(); ctx.moveTo(X(pts[trail[t]]),Y(pts[trail[t]])); ctx.lineTo(X(pts[trail[t+1]]),Y(pts[trail[t+1]])); ctx.stroke(); }
+
+  // result (top-k) — lines + glow
+  for (const o of result){ ctx.beginPath(); ctx.moveTo(X(query),Y(query)); ctx.lineTo(X(pts[o.i]),Y(pts[o.i])); ctx.strokeStyle = 'rgba(167,139,250,0.55)'; ctx.lineWidth = 1.5; ctx.stroke(); }
+  for (const o of result){ ctx.beginPath(); ctx.arc(X(pts[o.i]),Y(pts[o.i]),5.5,0,7); ctx.fillStyle = '#a78bfa'; ctx.shadowColor = '#a78bfa'; ctx.shadowBlur = 12; ctx.fill(); ctx.shadowBlur = 0; }
+
+  // query marker
+  ctx.beginPath(); ctx.arc(X(query),Y(query),7,0,7); ctx.strokeStyle = '#f8fafc'; ctx.lineWidth = 2; ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(X(query)-13,Y(query)); ctx.lineTo(X(query)+13,Y(query)); ctx.moveTo(X(query),Y(query)-13); ctx.lineTo(X(query),Y(query)+13); ctx.strokeStyle = '#f8fafc'; ctx.stroke();
+
+  requestAnimationFrame(render);
+}
+render();
+</script>
+</body>
+</html>

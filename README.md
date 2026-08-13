@@ -12,7 +12,7 @@
 </p>
 
 <p align="center">
-  </a>
+  <a href="https://opanai404.github.io/vectrix/"><img src="https://img.shields.io/badge/live_demo-HNSW_search-A78BFA?style=flat&logoColor=white" alt="Live demo"></a>
   <img src="https://img.shields.io/github/license/opanai404/vectrix?color=A78BFA&style=flat&logoColor=white" alt="license MIT">
   <img src="https://img.shields.io/badge/version-0.1.0-A78BFA?style=flat&logoColor=white" alt="version">
   <img src="https://img.shields.io/badge/Rust-1.90%2B-A78BFA?style=flat&logo=rust&logoColor=white" alt="Rust">
