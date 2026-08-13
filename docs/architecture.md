@@ -11,7 +11,7 @@ and the storage format, and shows how a query flows through the system.
 │                          vectrix workspace                           │
 ├───────────────┬───────────────┬───────────────┬──────────┬───────────┤
 │   core        │   quant       │   index       │ storage  │   wasm    │
-│  0 deps       │  1 dep        │  2 deps       │ 1 dep    │ 2 deps    │
+│  0 deps       │  1 dep        │  2 deps       │ 2 deps   │ 4 deps    │
 │  vector       │  PQ codebooks │  HNSW graph   │  mmap    │ bindgen   │
 │  Metric       │  scalar i8    │  IVF-PQ lists │ segments│ JS export │
 │  SIMD kernels │  k-means      │  query        │  writer  │           │

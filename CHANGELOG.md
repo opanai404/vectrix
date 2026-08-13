@@ -32,4 +32,4 @@ Initial release. First public, feature-complete slice of the engine.
   `cargo-deny` audit.
 - Benchmarks: Criterion micro-benchmarks for the distance kernels.
 
-[0.1.0]: https://github.com/hrniu/vectrix/releases/tag/v0.1.0
+[0.1.0]: https://github.com/opanai404/vectrix/releases/tag/v0.1.0

@@ -28,7 +28,7 @@ proptest! {
 fn pq_dist_table_equals_decode_then_l2() {
     // The asymmetric-distance table must agree with decoding a code and
     // computing the exact squared L2 against the query residual.
-    let pq = ProductQuantizer::new(8, 2, 4).unwrap(); // 2 sub-quants, 16 centroids
+    let mut pq = ProductQuantizer::new(8, 2, 4).unwrap(); // 2 sub-quants, 16 centroids
     let pts: Vec<Vector> = (0..48)
         .map(|i| {
             Vector::new(vec![

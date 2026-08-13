@@ -87,7 +87,7 @@ impl VisitedPool {
     pub fn new(capacity: usize) -> Self {
         Self {
             marks: vec![0; capacity],
-            epoch: 0,
+            epoch: 1,
         }
     }
 

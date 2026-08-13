@@ -230,7 +230,7 @@ mod tests {
     fn encode_decode_roundtrips_approximately() {
         // With one subquantizer over 2-d data, 16 centroids reproduce a
         // well-separated cluster closely.
-        let pq = ProductQuantizer::new(2, 1, 4).unwrap();
+        let mut pq = ProductQuantizer::new(2, 1, 4).unwrap();
         let pts: Vec<Vector> = (0..64)
             .map(|i| Vector::new(vec![(i % 8) as f32, (i / 8) as f32]))
             .collect();

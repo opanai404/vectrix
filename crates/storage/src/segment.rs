@@ -6,7 +6,8 @@
 //! The read side of the segment format.
 //!
 //! `Segment::open` maps a file, validates the header, and exposes
-//! zero-copy `read_vector` access. All integers are little-endian; floats
+//! `read_vector` access, which decodes each record into an owned `Vector`.
+//! All integers are little-endian; floats
 //! are IEEE-754 binary32. The byte layout is pinned in
 //! `docs/storage-format.md`.
 

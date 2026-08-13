@@ -12,15 +12,15 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/hrniu/vectrix/actions/workflows/ci.yml">
-    <img src="https://img.shields.io/github/actions/workflow/status/hrniu/vectrix/ci.yml?branch=main&style=flat&logoColor=white" alt="CI build">
+  <a href="https://github.com/opanai404/vectrix/actions/workflows/ci.yml">
+    <img src="https://img.shields.io/github/actions/workflow/status/opanai404/vectrix/ci.yml?branch=main&style=flat&logoColor=white" alt="CI build">
   </a>
-  <img src="https://img.shields.io/github/license/hrniu/vectrix?color=A78BFA&style=flat&logoColor=white" alt="license MIT">
+  <img src="https://img.shields.io/github/license/opanai404/vectrix?color=A78BFA&style=flat&logoColor=white" alt="license MIT">
   <img src="https://img.shields.io/badge/version-0.1.0-A78BFA?style=flat&logoColor=white" alt="version">
   <img src="https://img.shields.io/badge/Rust-1.90%2B-A78BFA?style=flat&logo=rust&logoColor=white" alt="Rust">
   <img src="https://img.shields.io/badge/SIMD-AVX2%20%C2%B7%20NEON-A78BFA?style=flat&logoColor=white" alt="SIMD AVX2 · NEON">
   <img src="https://img.shields.io/badge/WASM-wasm32-unknown--unknown-A78BFA?style=flat&logoColor=white" alt="WASM">
-  <img src="https://img.shields.io/github/stars/hrniu/vectrix?style=flat&logoColor=white" alt="stars">
+  <img src="https://img.shields.io/github/stars/opanai404/vectrix?style=flat&logoColor=white" alt="stars">
 </p>
 
 ---
@@ -135,7 +135,9 @@ marketing.
 | `squared_l2` | 512 | ~7.2 ns  | ~1.3 ns       | 5.5× |
 | `cosine`   | 512  | ~9.0 ns    | ~2.4 ns       | 3.8× |
 
-End-to-end recall on 64-d unit vectors (AVX2 host):
+End-to-end recall on 64-d unit vectors (AVX2 host). These figures are
+illustrative estimates, not measured by an automated benchmark (see the
+roadmap's open `criterion` end-to-end ANN item):
 
 | index   | build time | queries/s | recall@10 |
 |---------|------------|-----------|-----------|
@@ -196,4 +198,4 @@ workflow, code style, and conventional-commit rules. Please read
 
 ## License
 
-MIT © 2026 [hrniu](https://github.com/hrniu). See [LICENSE](LICENSE).
+MIT © 2026 [hrniu](https://github.com/opanai404). See [LICENSE](LICENSE).
